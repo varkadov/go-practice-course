@@ -31,7 +31,7 @@ func main() {
 
 		params := strings.Split(r.URL.Path[len("/update/"):], "/")
 
-		if len(params) < 2 {
+		if len(params) < 3 {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
