@@ -1,32 +1,30 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"runtime"
 	"time"
 )
 
-const (
-	pollInterval   = 2 * time.Second
-	reportInterval = 10 * time.Second
-)
-
-const url = "http://localhost:8080/update/gauge/10/10"
+const url = "/update/gauge/10/10"
 
 func main() {
 	c := http.Client{}
 	m := runtime.MemStats{}
 
-	pollChan := make(chan interface{})
-	reportChan := make(chan interface{})
+	addr := flag.String("a", ":8080", "Server address")
+	pollInterval := flag.Int64("p", 2, "Pool Interval")
+	reportInterval := flag.Int64("r", 10, "Report interval")
+	flag.Parse()
 
-	go pollFn(pollChan)
-	go reportFn(reportChan)
+	pollTimer := time.NewTicker(time.Duration(*pollInterval) * time.Second)
+	reportTimer := time.NewTicker(time.Duration(*reportInterval) * time.Second)
 
 	for {
 		select {
-		case <-pollChan:
+		case <-pollTimer.C:
 			{
 				fmt.Println("It's time for report")
 
@@ -34,11 +32,11 @@ func main() {
 
 				fmt.Printf("Alloc: %v\n", m.Alloc)
 			}
-		case <-reportChan:
+		case <-reportTimer.C:
 			{
 				fmt.Println("It's time for poll")
 
-				res, err := c.Post(url, "text/plain", nil)
+				res, err := c.Post(*addr+url, "text/plain", nil)
 				_ = res.Body.Close()
 				if err != nil {
 					_ = fmt.Errorf("%v", err)
@@ -48,19 +46,5 @@ func main() {
 				fmt.Printf("Status code: %d\n", res.StatusCode)
 			}
 		}
-	}
-}
-
-func pollFn(ch chan interface{}) {
-	for {
-		time.Sleep(pollInterval)
-		ch <- nil
-	}
-}
-
-func reportFn(ch chan interface{}) {
-	for {
-		time.Sleep(reportInterval)
-		ch <- nil
 	}
 }
