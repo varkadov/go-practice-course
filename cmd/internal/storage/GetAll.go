@@ -1,12 +1,15 @@
 package storage
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 func (s *MemStorage) GetAll() []string {
 	l := make([]string, 0)
 
 	for k, v := range s.gauge {
-		l = append(l, fmt.Sprintf("%s/%s: %f", MetricTypeGauge, k, v))
+		l = append(l, fmt.Sprintf("%s/%s: %s", MetricTypeGauge, k, strconv.FormatFloat(v, 'f', -1, 64)))
 	}
 
 	for k, v := range s.counter {
