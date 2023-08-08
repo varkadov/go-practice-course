@@ -8,12 +8,12 @@ import (
 	"strings"
 )
 
-func GetMetricHandler(s *storage.MemStorage) func(w http.ResponseWriter, r *http.Request) {
+func GetMetricHandler(storage *storage.MemStorage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metricType := strings.ToLower(chi.URLParam(r, "metricType"))
 		metricName := strings.ToLower(chi.URLParam(r, "metricName"))
 
-		v, err := s.Get(metricType, metricName)
+		v, err := storage.Get(metricType, metricName)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
