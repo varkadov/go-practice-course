@@ -19,7 +19,7 @@ func TestUpdateHandler(t *testing.T) {
 	}{
 		{
 			name:   "GET method",
-			url:    "/",
+			url:    "/update",
 			method: http.MethodGet,
 			want: want{
 				statusCode: http.StatusNotFound,
@@ -27,7 +27,7 @@ func TestUpdateHandler(t *testing.T) {
 		},
 		{
 			name:   "Not found",
-			url:    "/some-invalid-url",
+			url:    "/update/some-invalid-url",
 			method: http.MethodPost,
 			want: want{
 				statusCode: http.StatusNotFound,
@@ -35,7 +35,7 @@ func TestUpdateHandler(t *testing.T) {
 		},
 		{
 			name:   "Invalid metric type",
-			url:    "/some-invalid-metric/1/1",
+			url:    "/update/some-invalid-metric/1/1",
 			method: http.MethodPost,
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -43,7 +43,7 @@ func TestUpdateHandler(t *testing.T) {
 		},
 		{
 			name:   "Invalid gauge metric",
-			url:    "/gauge/x/x",
+			url:    "/update/gauge/x/x",
 			method: http.MethodPost,
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -51,7 +51,7 @@ func TestUpdateHandler(t *testing.T) {
 		},
 		{
 			name:   "Invalid counter metric",
-			url:    "/counter/x/x",
+			url:    "/update/counter/x/x",
 			method: http.MethodPost,
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -59,7 +59,7 @@ func TestUpdateHandler(t *testing.T) {
 		},
 		{
 			name:   "Valid gauge metric",
-			url:    "/gauge/1/1",
+			url:    "/update/gauge/1/1",
 			method: http.MethodPost,
 			want: want{
 				statusCode: http.StatusOK,
@@ -67,7 +67,7 @@ func TestUpdateHandler(t *testing.T) {
 		},
 		{
 			name:   "Valid counter metric",
-			url:    "/counter/1/1",
+			url:    "/update/counter/1/1",
 			method: http.MethodPost,
 			want: want{
 				statusCode: http.StatusOK,
