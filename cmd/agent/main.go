@@ -14,7 +14,7 @@ func main() {
 	c := http.Client{}
 	m := runtime.MemStats{}
 
-	addr := flag.String("a", ":8080", "Server address")
+	addr := flag.String("a", "http://localhost:8080", "Server address")
 	pollInterval := flag.Int64("p", 2, "Pool Interval")
 	reportInterval := flag.Int64("r", 10, "Report interval")
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 		select {
 		case <-pollTimer.C:
 			{
-				fmt.Println("It's time for report")
+				fmt.Println("It's time for poll")
 
 				runtime.ReadMemStats(&m)
 
@@ -34,14 +34,14 @@ func main() {
 			}
 		case <-reportTimer.C:
 			{
-				fmt.Println("It's time for poll")
+				fmt.Println("It's time for report")
 
 				res, err := c.Post(*addr+url, "text/plain", nil)
-				_ = res.Body.Close()
 				if err != nil {
 					_ = fmt.Errorf("%v", err)
 					return
 				}
+				_ = res.Body.Close()
 
 				fmt.Printf("Status code: %d\n", res.StatusCode)
 			}
