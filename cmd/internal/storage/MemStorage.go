@@ -66,3 +66,17 @@ func (s *MemStorage) Set(t, n, v string) error {
 
 	return errors.New("metric type doesn't exist")
 }
+
+func (s *MemStorage) GetAll() []string {
+	l := make([]string, 0)
+
+	for k, v := range s.gauge {
+		l = append(l, fmt.Sprintf("%s/%s: %f", MetricTypeGauge, k, v))
+	}
+
+	for k, v := range s.counter {
+		l = append(l, fmt.Sprintf("%s/%s: %d", MetricTypeCounter, k, v))
+	}
+
+	return l
+}
