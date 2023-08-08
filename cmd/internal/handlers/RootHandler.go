@@ -12,7 +12,7 @@ func RootHandler(s *storage.MemStorage) func(w http.ResponseWriter, r *http.Requ
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		for _, v := range l {
-			io.WriteString(w, v+"\n")
+			_, _ = io.WriteString(w, v+"\n")
 		}
 	}
 }
