@@ -12,27 +12,27 @@ const (
 )
 
 type MemStorage struct {
-	Gauge   map[string]float64
-	Counter map[string]int64
+	gauge   map[string]float64
+	counter map[string]int64
 }
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
-		Gauge:   make(map[string]float64),
-		Counter: make(map[string]int64),
+		gauge:   make(map[string]float64),
+		counter: make(map[string]int64),
 	}
 }
 
 func (s *MemStorage) Get(t, n string) (string, error) {
 	if t == MetricTypeGauge {
-		if v, ok := s.Gauge[n]; ok {
+		if v, ok := s.gauge[n]; ok {
 			return fmt.Sprintf("%f", v), nil
 		}
 		return "", errors.New("metric doesn't exist")
 	}
 
 	if t == MetricTypeCounter {
-		if v, ok := s.Counter[n]; ok {
+		if v, ok := s.counter[n]; ok {
 			return fmt.Sprintf("%d", v), nil
 		}
 		return "", errors.New("metric doesn't exist")
@@ -51,7 +51,7 @@ func (s *MemStorage) Set(t, n, v string) error {
 		if err != nil {
 			return err
 		}
-		s.Gauge[n] = value
+		s.gauge[n] = value
 		return nil
 	}
 
@@ -60,7 +60,7 @@ func (s *MemStorage) Set(t, n, v string) error {
 		if err != nil {
 			return err
 		}
-		s.Counter[n] += value
+		s.counter[n] += value
 		return nil
 	}
 
