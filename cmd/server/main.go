@@ -12,13 +12,9 @@ func main() {
 	s := storage.NewMemStorage()
 	r := chi.NewRouter()
 
-	r.Route("/", func(r chi.Router) {
-		r.Route("/update", func(r chi.Router) {
-			r.Get("/{metricType}/{metricName}/{metricValue}", handlers.GetMetricHandler(s))
-			r.Post("/{metricType}/{metricName}/{metricValue}", handlers.PostMetricHandler(s))
-		})
-		r.Get("/", handlers.RootHandler(s))
-	})
+	r.Get("/", handlers.RootHandler(s))
+	r.Get("/value/{metricType}/{metricName}", handlers.GetMetricHandler(s))
+	r.Post("/update/{metricType}/{metricName}/{metricValue}", handlers.PostMetricHandler(s))
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
