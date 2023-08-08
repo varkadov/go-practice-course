@@ -83,6 +83,7 @@ func TestUpdateHandler(t *testing.T) {
 			UpdateHandler(s)(w, r)
 
 			res := w.Result()
+			_ = res.Body.Close()
 
 			if res.StatusCode != tt.want.statusCode {
 				t.Errorf("Status code expected: %d, actual: %d", tt.want.statusCode, res.StatusCode)
