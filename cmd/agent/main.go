@@ -39,6 +39,7 @@ func main() {
 				fmt.Println("It's time for poll")
 
 				res, err := c.Post(url, "text/plain", nil)
+				_ = res.Body.Close()
 				if err != nil {
 					_ = fmt.Errorf("%v", err)
 					return
