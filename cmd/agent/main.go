@@ -1,29 +1,27 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"github.com/varkadov/go-practice-course/cmd/agent/config"
 	"net/http"
 	"runtime"
 	"time"
 )
 
-const url = "/update/gauge/10/10"
+const path = "/update/gauge/10/10"
 
 func main() {
 	c := http.Client{}
 	m := runtime.MemStats{}
+	conf := config.NewConfig()
 
-	addr := flag.String("a", "localhost:8080", "Server address")
-	pollInterval := flag.Int64("p", 2, "Pool Interval")
-	reportInterval := flag.Int64("r", 10, "Report interval")
-	flag.Parse()
-
-	pollTimer := time.NewTicker(time.Duration(*pollInterval) * time.Second)
-	reportTimer := time.NewTicker(time.Duration(*reportInterval) * time.Second)
+	pollTimer := time.NewTicker(time.Duration(conf.PollInterval) * time.Second)
+	reportTimer := time.NewTicker(time.Duration(conf.ReportInterval) * time.Second)
 
 	defer reportTimer.Stop()
 	defer pollTimer.Stop()
+
+	url := "http://" + conf.Addr + path
 
 	for {
 		select {
@@ -33,7 +31,7 @@ func main() {
 			}
 		case <-reportTimer.C:
 			{
-				res, err := c.Post("http://"+*addr+url, "text/plain", nil)
+				res, err := c.Post(url, "text/plain", nil)
 				if err != nil {
 					_ = fmt.Errorf("%v", err)
 					return
