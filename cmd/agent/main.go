@@ -33,8 +33,6 @@ func main() {
 			}
 		case <-reportTimer.C:
 			{
-				fmt.Println("It's time for report")
-
 				res, err := c.Post(*addr+url, "text/plain", nil)
 				if err != nil {
 					_ = fmt.Errorf("%v", err)
