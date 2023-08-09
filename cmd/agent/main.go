@@ -14,7 +14,7 @@ func main() {
 	c := http.Client{}
 	m := runtime.MemStats{}
 
-	addr := flag.String("a", "http://localhost:8080", "Server address")
+	addr := flag.String("a", "localhost:8080", "Server address")
 	pollInterval := flag.Int64("p", 2, "Pool Interval")
 	reportInterval := flag.Int64("r", 10, "Report interval")
 	flag.Parse()
@@ -33,7 +33,7 @@ func main() {
 			}
 		case <-reportTimer.C:
 			{
-				res, err := c.Post(*addr+url, "text/plain", nil)
+				res, err := c.Post("http://"+*addr+url, "text/plain", nil)
 				if err != nil {
 					_ = fmt.Errorf("%v", err)
 					return
