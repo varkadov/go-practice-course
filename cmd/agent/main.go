@@ -22,6 +22,9 @@ func main() {
 	pollTimer := time.NewTicker(time.Duration(*pollInterval) * time.Second)
 	reportTimer := time.NewTicker(time.Duration(*reportInterval) * time.Second)
 
+	defer reportTimer.Stop()
+	defer pollTimer.Stop()
+
 	for {
 		select {
 		case <-pollTimer.C:
