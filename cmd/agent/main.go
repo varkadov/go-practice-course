@@ -14,8 +14,6 @@ func main() {
 	c := http.Client{}
 	m := runtime.MemStats{}
 
-	time.Sleep(time.Second)
-
 	addr := flag.String("a", "http://localhost:8080", "Server address")
 	pollInterval := flag.Int64("p", 2, "Pool Interval")
 	reportInterval := flag.Int64("r", 10, "Report interval")
