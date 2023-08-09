@@ -29,11 +29,7 @@ func main() {
 		select {
 		case <-pollTimer.C:
 			{
-				fmt.Println("It's time for poll")
-
 				runtime.ReadMemStats(&m)
-
-				fmt.Printf("Alloc: %v\n", m.Alloc)
 			}
 		case <-reportTimer.C:
 			{
@@ -45,8 +41,6 @@ func main() {
 					return
 				}
 				_ = res.Body.Close()
-
-				fmt.Printf("Status code: %d\n", res.StatusCode)
 			}
 		}
 	}
