@@ -13,14 +13,14 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	var cfg Config
 	var (
+		config         Config
 		Addr           string
 		PollInterval   int
 		ReportInterval int
 	)
 
-	if err := env.Parse(&cfg); err != nil {
+	if err := env.Parse(&config); err != nil {
 		log.Fatal(err)
 	}
 
@@ -29,15 +29,15 @@ func NewConfig() *Config {
 	flag.IntVar(&ReportInterval, "r", 10, "Report interval")
 	flag.Parse()
 
-	if cfg.Addr == "" {
-		cfg.Addr = Addr
+	if config.Addr == "" {
+		config.Addr = Addr
 	}
-	if cfg.PollInterval == 0 {
-		cfg.PollInterval = PollInterval
+	if config.PollInterval == 0 {
+		config.PollInterval = PollInterval
 	}
-	if cfg.ReportInterval == 0 {
-		cfg.ReportInterval = ReportInterval
+	if config.ReportInterval == 0 {
+		config.ReportInterval = ReportInterval
 	}
 
-	return &cfg
+	return &config
 }

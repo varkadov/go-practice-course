@@ -2,23 +2,30 @@ package config
 
 import (
 	"flag"
-	"os"
+	"github.com/caarlos0/env/v6"
+	"log"
 )
 
 type Config struct {
-	Addr string
+	Addr string `env:"ADDRESS"`
 }
 
 func NewConfig() *Config {
-	addrEnv := os.Getenv("ADDRESS")
-	addrFlag := flag.String("a", ":8080", "Server address")
+	var (
+		config Config
+		addr   string
+	)
+
+	if err := env.Parse(&config); err != nil {
+		log.Fatal(err)
+	}
+
+	flag.StringVar(&addr, "a", ":8080", "Server address")
 	flag.Parse()
 
-	if addrEnv != "" {
-		*addrFlag = addrEnv
+	if config.Addr == "" {
+		config.Addr = addr
 	}
 
-	return &Config{
-		Addr: *addrFlag,
-	}
+	return &config
 }
