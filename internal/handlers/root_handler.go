@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/varkadov/go-practice-course/cmd/internal/storage"
 	"io"
 	"net/http"
+
+	"github.com/varkadov/go-practice-course/internal/storage"
 )
 
 func RootHandler(s *storage.MemStorage) func(w http.ResponseWriter, r *http.Request) {

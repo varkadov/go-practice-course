@@ -2,8 +2,9 @@ package config
 
 import (
 	"flag"
-	"github.com/caarlos0/env/v6"
 	"log"
+
+	"github.com/caarlos0/env/v6"
 )
 
 type Config struct {
@@ -15,28 +16,28 @@ type Config struct {
 func NewConfig() *Config {
 	var (
 		config         Config
-		Addr           string
-		PollInterval   int
-		ReportInterval int
+		addr           string
+		pollInterval   int
+		reportInterval int
 	)
 
 	if err := env.Parse(&config); err != nil {
 		log.Fatal(err)
 	}
 
-	flag.StringVar(&Addr, "a", "localhost:8080", "Server address")
-	flag.IntVar(&PollInterval, "p", 2, "Pool Interval")
-	flag.IntVar(&ReportInterval, "r", 10, "Report interval")
+	flag.StringVar(&addr, "a", "localhost:8080", "Server address")
+	flag.IntVar(&pollInterval, "p", 2, "Pool Interval")
+	flag.IntVar(&reportInterval, "r", 10, "Report interval")
 	flag.Parse()
 
 	if config.Addr == "" {
-		config.Addr = Addr
+		config.Addr = addr
 	}
 	if config.PollInterval == 0 {
-		config.PollInterval = PollInterval
+		config.PollInterval = pollInterval
 	}
 	if config.ReportInterval == 0 {
-		config.ReportInterval = ReportInterval
+		config.ReportInterval = reportInterval
 	}
 
 	return &config

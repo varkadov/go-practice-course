@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/varkadov/go-practice-course/cmd/internal/handlers"
-	"github.com/varkadov/go-practice-course/cmd/internal/storage"
-	"github.com/varkadov/go-practice-course/cmd/server/config"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/varkadov/go-practice-course/internal/config"
+	"github.com/varkadov/go-practice-course/internal/handlers"
+	"github.com/varkadov/go-practice-course/internal/storage"
 )
 
 func main() {

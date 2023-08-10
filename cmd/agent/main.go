@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/varkadov/go-practice-course/cmd/agent/config"
 	"net/http"
 	"runtime"
 	"time"
+
+	"github.com/varkadov/go-practice-course/internal/config"
 )
 
 const path = "/update/gauge/10/10"
@@ -26,18 +27,14 @@ func main() {
 	for {
 		select {
 		case <-pollTimer.C:
-			{
-				runtime.ReadMemStats(&m)
-			}
+			runtime.ReadMemStats(&m)
 		case <-reportTimer.C:
-			{
-				res, err := c.Post(url, "text/plain", nil)
-				if err != nil {
-					_ = fmt.Errorf("%v", err)
-					return
-				}
-				_ = res.Body.Close()
+			res, err := c.Post(url, "text/plain", nil)
+			if err != nil {
+				_ = fmt.Errorf("%v", err)
+				return
 			}
+			_ = res.Body.Close()
 		}
 	}
 }

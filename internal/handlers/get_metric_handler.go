@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/varkadov/go-practice-course/cmd/internal/storage"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/varkadov/go-practice-course/internal/storage"
 )
 
 func GetMetricHandler(storage *storage.MemStorage) func(w http.ResponseWriter, r *http.Request) {
