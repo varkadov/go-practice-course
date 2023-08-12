@@ -22,7 +22,7 @@ func main() {
 
 	fmt.Printf("Server running on %s", c.Addr)
 
-	err := http.ListenAndServe(c.Addr, r)
+	err := http.ListenAndServe(*c.Addr, r)
 	if err != nil {
 		log.Fatal(err)
 	}
