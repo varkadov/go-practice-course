@@ -20,7 +20,7 @@ func main() {
 	r.Get("/value/{metricType}/{metricName}", handlers.GetMetricHandler(s))
 	r.Post("/update/{metricType}/{metricName}/{metricValue}", handlers.PostMetricHandler(s))
 
-	fmt.Printf("Server running on %s", c.Addr)
+	fmt.Printf("Server running on %s", *c.Addr)
 
 	err := http.ListenAndServe(*c.Addr, r)
 	if err != nil {
