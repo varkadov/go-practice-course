@@ -16,13 +16,13 @@ func main() {
 	m := runtime.MemStats{}
 	conf := config.NewConfig()
 
-	pollTimer := time.NewTicker(time.Duration(*conf.PollInterval) * time.Second)
-	reportTimer := time.NewTicker(time.Duration(*conf.ReportInterval) * time.Second)
+	pollTimer := time.NewTicker(time.Duration(conf.PollInterval) * time.Second)
+	reportTimer := time.NewTicker(time.Duration(conf.ReportInterval) * time.Second)
 
 	defer reportTimer.Stop()
 	defer pollTimer.Stop()
 
-	url := "http://" + *conf.Addr + path
+	url := "http://" + conf.Addr + path
 
 	for {
 		select {
