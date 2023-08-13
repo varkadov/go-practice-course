@@ -15,10 +15,11 @@ func main() {
 	s := storage.NewMemStorage()
 	r := chi.NewRouter()
 	c := config.NewConfig()
+	h := handlers.NewHandler(s)
 
-	r.Get("/", handlers.RootHandler(s))
-	r.Get("/value/{metricType}/{metricName}", handlers.GetMetricHandler(s))
-	r.Post("/update/{metricType}/{metricName}/{metricValue}", handlers.PostMetricHandler(s))
+	r.Get("/", h.RootHandler)
+	r.Get("/value/{metricType}/{metricName}", h.GetMetricHandler)
+	r.Post("/update/{metricType}/{metricName}/{metricValue}", h.PostMetricHandler)
 
 	fmt.Printf("Server running on %s", c.Addr)
 
