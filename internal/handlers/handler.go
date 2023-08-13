@@ -1,12 +1,16 @@
 package handlers
 
-import "github.com/varkadov/go-practice-course/internal/storage"
-
-type Handler struct {
-	storage *storage.MemStorage
+type Storage interface {
+	GetAll() []string
+	Get(metricType, metricName string) (string, error)
+	Set(metricType, metricName, metricValue string) error
 }
 
-func NewHandler(storage *storage.MemStorage) *Handler {
+type Handler struct {
+	storage Storage
+}
+
+func NewHandler(storage Storage) *Handler {
 	return &Handler{
 		storage: storage,
 	}
