@@ -16,6 +16,7 @@ type MemStorage struct {
 	counter map[string]int64
 }
 
+// TODO use sync.RWMutex https://github.com/varkadov/go-practice-course/pull/5#discussion_r1289184589
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
 		gauge:   make(map[string]float64),
