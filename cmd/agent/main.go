@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 	"runtime"
+	"sync"
 	"time"
 
 	"github.com/varkadov/go-practice-course/internal/config"
@@ -68,17 +69,30 @@ func main() {
 				fmt.Sprintf("/update/counter/RandomValue/%d", rand.Int63()),
 			}
 
+			var wg sync.WaitGroup
+			var errCount int
+
 			for _, path := range paths {
-				path := path
-				go func() {
-					res, err := c.Post(host+path, "text/plain", nil)
+				wg.Add(1)
+				go func(url string) {
+					defer wg.Done()
+					res, err := c.Post(url, "text/plain", nil)
 
 					if err != nil {
+						errCount++
 						fmt.Printf("Error: %v\n", err)
 						return
 					}
 					_ = res.Body.Close()
-				}()
+				}(host + path)
+			}
+
+			wg.Wait()
+
+			if errCount > 0 {
+				fmt.Printf("%d metrics have not been sent\n", errCount)
+			} else {
+				fmt.Println("All metrics have been sent")
 			}
 		}
 	}
