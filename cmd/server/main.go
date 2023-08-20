@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/varkadov/go-practice-course/internal/config"
 	"github.com/varkadov/go-practice-course/internal/handlers"
+	"github.com/varkadov/go-practice-course/internal/middlewares"
 	"github.com/varkadov/go-practice-course/internal/storage"
 )
 
@@ -17,6 +18,7 @@ func main() {
 	c := config.NewConfig()
 	h := handlers.NewHandler(s)
 
+	r.Use(middlewares.WithLogging)
 	r.Get("/", h.RootHandler)
 	r.Get("/value/{metricType}/{metricName}", h.GetMetricHandler)
 	r.Post("/update/{metricType}/{metricName}/{metricValue}", h.PostMetricHandler)
