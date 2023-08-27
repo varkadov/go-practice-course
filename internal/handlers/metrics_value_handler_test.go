@@ -27,7 +27,7 @@ func (s *storage) Get(metricType, metricName string) (*models.Metrics, error) {
 	}, s.err
 }
 
-func (s *storage) Set(metricType, metricName, metricValue string) (*models.Metrics, error) {
+func (s *storage) Set(metricType, metricName, _ string) (*models.Metrics, error) {
 	return &models.Metrics{
 		ID:    metricName,
 		MType: metricType,

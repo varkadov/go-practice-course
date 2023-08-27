@@ -45,6 +45,6 @@ func (h *Handler) MetricsUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(result)
+	_, _ = w.Write(result)
 	w.WriteHeader(http.StatusOK)
 }
