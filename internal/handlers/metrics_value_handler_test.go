@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -38,7 +39,7 @@ func (s *storage) GetAll() []string {
 	return make([]string, 0)
 }
 
-func newStorage(value string, err error) *storage {
+func newStorage(value float64, err error) *storage {
 	return &storage{value: value, err: err}
 }
 
@@ -51,13 +52,15 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 	tests := []struct {
 		name    string
 		url     string
+		body    string
 		storage *storage
 		want    want
 	}{
 		{
 			name:    "Should return 404 status if metric doesn't exist",
-			url:     "/?metricType=counter&metricName=Alloc",
-			storage: newStorage("", errors.New("404")),
+			url:     "/",
+			body:    `{"id": "Alloc", "type": "counter"}`,
+			storage: newStorage(1, errors.New("404")),
 			want: want{
 				status: http.StatusNotFound,
 				body:   "404\n",
@@ -65,11 +68,12 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 		},
 		{
 			name:    "Should return 200 status if metric exists",
-			url:     "/?metricType=counter&metricName=Alloc",
-			storage: newStorage("value", nil),
+			url:     "/",
+			body:    `{"id": "Alloc", "type": "counter"}`,
+			storage: newStorage(1, nil),
 			want: want{
 				status: http.StatusOK,
-				body:   "value",
+				body:   `{"id": "Alloc", "type": "counter", "value": 1}`,
 			},
 		},
 	}
@@ -79,10 +83,10 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 			h := &Handler{storage: tt.storage}
 
 			router := chi.NewRouter()
-			router.Get("/", h.MetricsValueHandler)
+			router.Post("/", h.MetricsValueHandler)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, tt.url, nil)
+			r := httptest.NewRequest(http.MethodPost, tt.url, strings.NewReader(tt.body))
 
 			handler := http.HandlerFunc(router.ServeHTTP)
 			handler.ServeHTTP(w, r)
@@ -94,7 +98,7 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want.status, res.StatusCode)
-			assert.Equal(t, tt.want.body, string(body))
+			assert.JSONEq(t, tt.want.body, string(body))
 		})
 	}
 }
