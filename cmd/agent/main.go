@@ -1,15 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"math/rand"
-	"net/http"
 	"runtime"
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/varkadov/go-practice-course/internal/config"
 	"github.com/varkadov/go-practice-course/internal/models"
 )
@@ -29,7 +28,7 @@ func uint64ToPointerUint64(v int64) *int64 {
 }
 
 func main() {
-	c := http.Client{}
+	c := resty.New().SetRetryCount(2).SetRetryWaitTime(time.Second)
 	conf := config.NewConfig()
 
 	m := runtime.MemStats{}
@@ -217,13 +216,15 @@ func main() {
 						return
 					}
 
-					res, err := c.Post(url, "application/json", bytes.NewReader(body))
+					_, err = c.R().
+						SetHeader("Content-type", "application/json").
+						SetBody(body).
+						Post(url)
 					if err != nil {
 						errCount++
 						fmt.Printf("Error: %v\n", err)
 						return
 					}
-					_ = res.Body.Close()
 				}(host)
 			}
 
