@@ -29,7 +29,7 @@ func (h *Handler) MetricsValueHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(&metrics)
+	res, err := json.Marshal(metrics)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

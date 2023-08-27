@@ -119,9 +119,6 @@ func TestMemStorage_Get(t *testing.T) {
 			}
 
 			assert.Equal(t, tt.want, got)
-			//if got != tt.want {
-			//	t.Errorf("Get() got = %v, want %v", got, tt.want)
-			//}
 		})
 	}
 }
