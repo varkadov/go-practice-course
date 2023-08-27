@@ -20,8 +20,8 @@ func main() {
 
 	r.Use(middlewares.WithLogging)
 	r.Get("/", h.RootHandler)
-	r.Post("/value", h.MetricsValueHandler)
-	r.Post("/update", h.MetricsUpdateHandler)
+	r.Post("/value/", h.MetricsValueHandler)
+	r.Post("/update/", h.MetricsUpdateHandler)
 	// Deprecated endpoints
 	r.Get("/value/{metricType}/{metricName}", h.GetMetricHandler)
 	r.Post("/update/{metricType}/{metricName}/{metricValue}", h.PostMetricHandler)
