@@ -28,6 +28,8 @@ func uint64ToPointerUint64(v int64) *int64 {
 }
 
 func main() {
+	time.Sleep(time.Second)
+
 	c := resty.New().SetRetryCount(2).SetRetryWaitTime(2 * time.Second)
 	conf := config.NewConfig()
 
