@@ -2,7 +2,18 @@ package storage
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/varkadov/go-practice-course/internal/models"
 )
+
+func float64Pointer(v float64) *float64 {
+	return &v
+}
+
+func int64Pointer(v int64) *int64 {
+	return &v
+}
 
 func TestMemStorage_Get(t *testing.T) {
 	type fields struct {
@@ -17,7 +28,7 @@ func TestMemStorage_Get(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    string
+		want    *models.Metrics
 		wantErr bool
 	}{
 		{
@@ -30,7 +41,11 @@ func TestMemStorage_Get(t *testing.T) {
 				t: "gauge",
 				n: "metricName",
 			},
-			want:    "4.2",
+			want: &models.Metrics{
+				ID:    "metricName",
+				MType: "gauge",
+				Value: float64Pointer(4.2),
+			},
 			wantErr: false,
 		},
 		{
@@ -43,7 +58,11 @@ func TestMemStorage_Get(t *testing.T) {
 				t: "counter",
 				n: "metricName",
 			},
-			want:    "4",
+			want: &models.Metrics{
+				ID:    "metricName",
+				MType: "counter",
+				Delta: int64Pointer(4),
+			},
 			wantErr: false,
 		},
 		{
@@ -56,7 +75,7 @@ func TestMemStorage_Get(t *testing.T) {
 				t: "nonExistentMetric",
 				n: "metricName",
 			},
-			want:    "",
+			want:    nil,
 			wantErr: true,
 		},
 		{
@@ -69,7 +88,7 @@ func TestMemStorage_Get(t *testing.T) {
 				t: "gauge",
 				n: "notExistentMetricName",
 			},
-			want:    "",
+			want:    nil,
 			wantErr: true,
 		},
 		{
@@ -82,7 +101,7 @@ func TestMemStorage_Get(t *testing.T) {
 				t: "counter",
 				n: "notExistentMetricName",
 			},
-			want:    "",
+			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -98,9 +117,11 @@ func TestMemStorage_Get(t *testing.T) {
 				t.Errorf("Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("Get() got = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.want, got)
+			//if got != tt.want {
+			//	t.Errorf("Get() got = %v, want %v", got, tt.want)
+			//}
 		})
 	}
 }
