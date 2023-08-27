@@ -9,20 +9,29 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
+	"github.com/varkadov/go-practice-course/internal/models"
 )
 
 // TODO Move this mock into the common place
 type storage struct {
-	value string
+	value float64
 	err   error
 }
 
-func (s *storage) Get(metricType, metricName string) (string, error) {
-	return s.value, s.err
+func (s *storage) Get(metricType, metricName string) (*models.Metrics, error) {
+	return &models.Metrics{
+		ID:    metricName,
+		MType: metricType,
+		Value: &s.value,
+	}, s.err
 }
 
-func (s *storage) Set(metricType, metricName, metricValue string) error {
-	return s.err
+func (s *storage) Set(metricType, metricName, metricValue string) (*models.Metrics, error) {
+	return &models.Metrics{
+		ID:    metricName,
+		MType: metricType,
+		Value: &s.value,
+	}, s.err
 }
 
 func (s *storage) GetAll() []string {
@@ -70,7 +79,7 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 			h := &Handler{storage: tt.storage}
 
 			router := chi.NewRouter()
-			router.Get("/", h.GetMetricHandler)
+			router.Get("/", h.MetricsValueHandler)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, tt.url, nil)

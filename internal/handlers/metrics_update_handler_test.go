@@ -50,7 +50,7 @@ func TestHandler_PostMetricHandler(t *testing.T) {
 			}
 
 			router := chi.NewRouter()
-			router.Post("/", h.PostMetricHandler)
+			router.Post("/", h.MetricsUpdateHandler)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodPost, tt.url, nil)

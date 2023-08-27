@@ -20,8 +20,8 @@ func main() {
 
 	r.Use(middlewares.WithLogging)
 	r.Get("/", h.RootHandler)
-	r.Get("/value/{metricType}/{metricName}", h.GetMetricHandler)
-	r.Post("/update/{metricType}/{metricName}/{metricValue}", h.PostMetricHandler)
+	r.Post("/value", h.MetricsValueHandler)
+	r.Post("/update", h.MetricsUpdateHandler)
 
 	fmt.Printf("Server running on %s", c.Addr)
 
