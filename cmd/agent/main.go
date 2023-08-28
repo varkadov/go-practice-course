@@ -28,9 +28,6 @@ func uint64ToPointerUint64(v int64) *int64 {
 }
 
 func main() {
-	// TODO Remove this temporary solution
-	time.Sleep(2 * time.Second)
-
 	c := resty.New().SetRetryCount(2).SetRetryWaitTime(2 * time.Second)
 	conf := config.NewConfig()
 
@@ -192,14 +189,14 @@ func main() {
 				},
 				// Counter metrics
 				{
+					ID:    "RandomValue",
+					MType: "gauge",
+					Delta: uint64ToPointerUint64(rand.Int63()),
+				},
+				{
 					ID:    "PollCount",
 					MType: "counter",
 					Delta: &pollCount,
-				},
-				{
-					ID:    "RandomValue",
-					MType: "counter",
-					Delta: uint64ToPointerUint64(rand.Int63()),
 				},
 			}
 
