@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"runtime"
 	"sync"
 	"time"
@@ -216,11 +217,12 @@ func main() {
 						return
 					}
 
-					_, err = c.R().
+					res, err := c.R().
 						SetHeader("Content-type", "application/json").
 						SetBody(body).
 						Post(url + "/update/")
-					if err != nil {
+
+					if err != nil || res.StatusCode() != http.StatusOK {
 						errCount++
 						fmt.Printf("Error: %v\n", err)
 						return
