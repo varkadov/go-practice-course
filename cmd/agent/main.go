@@ -219,7 +219,7 @@ func main() {
 					_, err = c.R().
 						SetHeader("Content-type", "application/json").
 						SetBody(body).
-						Post(url)
+						Post(url + "/update/")
 					if err != nil {
 						errCount++
 						fmt.Printf("Error: %v\n", err)
