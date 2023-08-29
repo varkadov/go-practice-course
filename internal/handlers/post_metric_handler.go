@@ -12,7 +12,7 @@ func (h *Handler) PostMetricHandler(w http.ResponseWriter, r *http.Request) {
 	metricName := strings.ToLower(chi.URLParam(r, "metricName"))
 	metricValue := chi.URLParam(r, "metricValue")
 
-	err := h.storage.Set(metricType, metricName, metricValue)
+	_, err := h.storage.Set(metricType, metricName, metricValue)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
