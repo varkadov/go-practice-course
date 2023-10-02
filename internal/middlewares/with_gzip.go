@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var mimeTypes = []string{"application/json", "text/html"}
+
 type gzipResponseWriter struct {
 	http.ResponseWriter
 	Writer *gzip.Writer
@@ -18,6 +20,16 @@ func (grw *gzipResponseWriter) Write(b []byte) (int, error) {
 
 func WithGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		responseContentType := w.Header().Get("Content-Type")
+		shouldCompress := false
+
+		for _, mt := range mimeTypes {
+			if responseContentType == mt {
+				shouldCompress = true
+				break
+			}
+		}
+
 		// Handle requests
 		if strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
 			reader, err := gzip.NewReader(r.Body)
@@ -32,7 +44,7 @@ func WithGzip(next http.Handler) http.Handler {
 		}
 
 		// Handle responses
-		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") && shouldCompress {
 			w.Header().Set("Content-Encoding", "gzip")
 			gzw := gzip.NewWriter(w)
 			defer gzw.Close()
