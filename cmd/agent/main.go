@@ -37,6 +37,7 @@ func main() {
 		SetRetryWaitTime(2*time.Second).
 		SetHeader("Content-Encoding", "gzip").
 		SetHeader("Accept-Encoding", "gzip").
+		SetHeader("Content-Type", "application/json").
 		OnBeforeRequest(requestMiddleware).
 		OnAfterResponse(responseMiddleware)
 	conf := config.NewConfig()
@@ -253,6 +254,7 @@ func main() {
 
 func requestMiddleware(_ *resty.Client, request *resty.Request) error {
 	body, ok := request.Body.([]byte)
+
 	if !ok {
 		return nil
 	}
@@ -260,7 +262,13 @@ func requestMiddleware(_ *resty.Client, request *resty.Request) error {
 	buf := &bytes.Buffer{}
 	gz := gzip.NewWriter(buf)
 	_, err := gz.Write(body)
+
 	if err != nil {
+		return err
+	}
+
+	// TODO Figure out why it's so important to close gz
+	if err := gz.Close(); err != nil {
 		return err
 	}
 
