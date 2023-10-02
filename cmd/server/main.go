@@ -19,6 +19,7 @@ func main() {
 	h := handlers.NewHandler(s)
 
 	r.Use(middlewares.WithLogging)
+	r.Use(middlewares.WithGzip)
 	r.Get("/", h.RootHandler)
 	r.Post("/value/", h.MetricsValueHandler)
 	r.Post("/update/", h.MetricsUpdateHandler)
