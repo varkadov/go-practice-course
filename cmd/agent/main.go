@@ -251,7 +251,7 @@ func main() {
 	}
 }
 
-func requestMiddleware(client *resty.Client, request *resty.Request) error {
+func requestMiddleware(_ *resty.Client, request *resty.Request) error {
 	body, ok := request.Body.([]byte)
 	if !ok {
 		return nil
@@ -268,14 +268,16 @@ func requestMiddleware(client *resty.Client, request *resty.Request) error {
 	return nil
 }
 
-func responseMiddleware(client *resty.Client, response *resty.Response) error {
+func responseMiddleware(_ *resty.Client, response *resty.Response) error {
 	if response.Header().Get("Content-Encoding") == "gzip" {
 		b := response.RawBody()
 		gz, err := gzip.NewReader(b)
 		if err != nil {
 			return err
 		}
-		defer gz.Close()
+		defer func(gz *gzip.Reader) {
+			_ = gz.Close()
+		}(gz)
 
 		body, err := io.ReadAll(gz)
 		if err != nil {
