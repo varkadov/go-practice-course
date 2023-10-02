@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
 	"runtime"
@@ -29,7 +32,13 @@ func uint64ToPointerUint64(v int64) *int64 {
 }
 
 func main() {
-	c := resty.New().SetRetryCount(2).SetRetryWaitTime(2 * time.Second)
+	c := resty.New().
+		SetRetryCount(2).
+		SetRetryWaitTime(2*time.Second).
+		SetHeader("Content-Encoding", "gzip").
+		SetHeader("Accept-Encoding", "gzip").
+		OnBeforeRequest(requestMiddleware).
+		OnAfterResponse(responseMiddleware)
 	conf := config.NewConfig()
 
 	m := runtime.MemStats{}
@@ -219,6 +228,7 @@ func main() {
 
 					res, err := c.R().
 						SetHeader("Content-type", "application/json").
+						SetHeader("Content-Encoding", "gzip").
 						SetBody(body).
 						Post(url + "/update/")
 
@@ -239,4 +249,41 @@ func main() {
 			}
 		}
 	}
+}
+
+func requestMiddleware(client *resty.Client, request *resty.Request) error {
+	body, ok := request.Body.([]byte)
+	if !ok {
+		return nil
+	}
+
+	buf := &bytes.Buffer{}
+	gz := gzip.NewWriter(buf)
+	_, err := gz.Write(body)
+	if err != nil {
+		return err
+	}
+
+	request.Body = buf.Bytes()
+	return nil
+}
+
+func responseMiddleware(client *resty.Client, response *resty.Response) error {
+	if response.Header().Get("Content-Encoding") == "gzip" {
+		b := response.RawBody()
+		gz, err := gzip.NewReader(b)
+		if err != nil {
+			return err
+		}
+		defer gz.Close()
+
+		body, err := io.ReadAll(gz)
+		if err != nil {
+			return err
+		}
+
+		response.Request.Body = body
+	}
+
+	return nil
 }
