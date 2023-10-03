@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+
+	"github.com/varkadov/go-practice-course/internal/models"
 )
 
 const (
@@ -18,7 +20,6 @@ type MemStorage struct {
 	counter map[string]int64
 }
 
-// TODO use sync.RWMutex https://github.com/varkadov/go-practice-course/pull/5#discussion_r1289184589
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
 		mutex:   sync.RWMutex{},
@@ -27,25 +28,31 @@ func NewMemStorage() *MemStorage {
 	}
 }
 
-func (s *MemStorage) Get(metricType, metricName string) (string, error) {
+func (s *MemStorage) Get(metricType, metricName string) (*models.Metrics, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
 	if metricType == metricTypeGauge {
 		if v, ok := s.gauge[metricName]; ok {
-			return strconv.FormatFloat(v, 'f', -1, 64), nil
+			return &models.Metrics{
+				ID:    metricName,
+				MType: metricTypeGauge,
+				Value: &v,
+			}, nil
 		}
-		return "", errors.New("metric doesn't exist")
 	}
 
 	if metricType == metricTypeCounter {
 		if v, ok := s.counter[metricName]; ok {
-			return fmt.Sprintf("%d", v), nil
+			return &models.Metrics{
+				ID:    metricName,
+				MType: metricTypeCounter,
+				Delta: &v,
+			}, nil
 		}
-		return "", errors.New("metric doesn't exist")
 	}
 
-	return "", errors.New("metric doesn't exist")
+	return nil, errors.New("metric doesn't exist")
 }
 
 func (s *MemStorage) GetAll() []string {
@@ -65,27 +72,40 @@ func (s *MemStorage) GetAll() []string {
 	return l
 }
 
-func (s *MemStorage) Set(metricType, metricName, metricValue string) error {
+func (s *MemStorage) Set(metricType, metricName, metricValue string) (*models.Metrics, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	if metricType == metricTypeGauge {
 		value, err := strconv.ParseFloat(metricValue, 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
+
 		s.gauge[metricName] = value
-		return nil
+
+		return &models.Metrics{
+			ID:    metricName,
+			MType: metricTypeGauge,
+			Value: &value,
+		}, nil
 	}
 
 	if metricType == metricTypeCounter {
 		value, err := strconv.ParseInt(metricValue, 10, 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
+
 		s.counter[metricName] += value
-		return nil
+		newValue := s.counter[metricName]
+
+		return &models.Metrics{
+			ID:    metricName,
+			MType: metricTypeCounter,
+			Delta: &newValue,
+		}, nil
 	}
 
-	return errors.New("metric type doesn't exist")
+	return nil, errors.New("metric type doesn't exist")
 }
