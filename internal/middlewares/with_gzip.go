@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var mimeTypes = []string{"application/json", "text/html"}
+var mimeTypes = []string{"application/json", "text/html", "html/text"}
 
 type gzipResponseWriter struct {
 	http.ResponseWriter
