@@ -20,11 +20,11 @@ func (grw *gzipResponseWriter) Write(b []byte) (int, error) {
 
 func WithGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		responseContentType := r.Header.Get("Content-Type")
+		responseAccept := r.Header.Get("Accept")
 		shouldCompress := false
 
 		for _, mt := range mimeTypes {
-			if responseContentType == mt {
+			if responseAccept == mt {
 				shouldCompress = true
 				break
 			}
