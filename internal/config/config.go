@@ -77,7 +77,7 @@ func NewServerConfig() *ServerConfig {
 	}
 
 	flag.StringVar(&addr, "a", "localhost:8080", "Server address")
-	flag.IntVar(&storeInterval, "r", 300, "Store interval")
+	flag.IntVar(&storeInterval, "i", 300, "Store interval")
 	flag.StringVar(&fileStoragePath, "f", "/tmp/metrics-db.json", "File storage path")
 	flag.BoolVar(&restore, "r", true, "Restore previous stored file")
 	flag.Parse()
