@@ -40,7 +40,7 @@ func main() {
 		SetHeader("Content-Type", "application/json").
 		OnBeforeRequest(requestMiddleware).
 		OnAfterResponse(responseMiddleware)
-	conf := config.NewConfig()
+	conf := config.NewAgentConfig()
 
 	m := runtime.MemStats{}
 	var pollCount int64 = 0

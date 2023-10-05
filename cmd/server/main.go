@@ -15,7 +15,7 @@ import (
 func main() {
 	s := storage.NewMemStorage()
 	r := chi.NewRouter()
-	c := config.NewConfig()
+	c := config.NewServerConfig()
 	h := handlers.NewHandler(s)
 
 	r.Use(middlewares.WithLogging)
