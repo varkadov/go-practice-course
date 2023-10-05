@@ -13,10 +13,11 @@ import (
 )
 
 func main() {
-	s := storage.NewMemStorage()
 	r := chi.NewRouter()
 	c := config.NewServerConfig()
-	h := handlers.NewHandler(s)
+	fs := storage.NewFileStorage(c.FileStoragePath)
+	ms := storage.NewMemStorage(fs, c.Restore, c.StoreInterval)
+	h := handlers.NewHandler(ms)
 
 	r.Use(middlewares.WithLogging)
 	r.Use(middlewares.WithGzip)
@@ -30,6 +31,12 @@ func main() {
 	fmt.Printf("Server running on %s", c.Addr)
 
 	err := http.ListenAndServe(c.Addr, r)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	err = ms.Flush()
 	if err != nil {
 		log.Fatal(err)
 	}
