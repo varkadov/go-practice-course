@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -14,17 +15,44 @@ const (
 	metricTypeCounter = "counter"
 )
 
-type MemStorage struct {
-	mutex   sync.RWMutex
-	gauge   map[string]float64
-	counter map[string]int64
+type storage interface {
+	Store([]byte) error
+	Restore() ([]byte, error)
 }
 
-func NewMemStorage() *MemStorage {
+type GaugeMetrics map[string]float64
+
+type CounterMetric map[string]int64
+
+type MemStorage struct {
+	mutex sync.RWMutex
+
+	gauge   GaugeMetrics
+	counter CounterMetric
+
+	storage       storage
+	storeInterval int
+}
+
+type StorageType struct {
+	Gauge   GaugeMetrics
+	Counter CounterMetric
+}
+
+func NewMemStorage(storage storage, restore bool, storeInterval int) *MemStorage {
+	var counterMetrics CounterMetric
+	var gaugeMetrics GaugeMetrics
+
+	if restore {
+		counterMetrics, gaugeMetrics = restoreFromStorage(storage)
+	}
+
 	return &MemStorage{
-		mutex:   sync.RWMutex{},
-		gauge:   make(map[string]float64),
-		counter: make(map[string]int64),
+		mutex:         sync.RWMutex{},
+		gauge:         gaugeMetrics,
+		counter:       counterMetrics,
+		storage:       storage,
+		storeInterval: storeInterval,
 	}
 }
 
@@ -108,4 +136,37 @@ func (s *MemStorage) Set(metricType, metricName, metricValue string) (*models.Me
 	}
 
 	return nil, errors.New("metric type doesn't exist")
+}
+
+func (s *MemStorage) Flush() error {
+	d := &StorageType{
+		Gauge:   s.gauge,
+		Counter: s.counter,
+	}
+
+	bb, err := json.Marshal(d)
+	if err != nil {
+		return err
+	}
+
+	return s.storage.Store(bb)
+}
+
+func restoreFromStorage(storage storage) (CounterMetric, GaugeMetrics) {
+	cm := make(CounterMetric)
+	gm := make(GaugeMetrics)
+
+	data, err := storage.Restore()
+	if err != nil {
+		return cm, gm
+	}
+
+	st := &StorageType{}
+
+	err = json.Unmarshal(data, st)
+	if err != nil {
+		return cm, gm
+	}
+
+	return st.Counter, st.Gauge
 }
