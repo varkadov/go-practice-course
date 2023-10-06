@@ -1,8 +1,6 @@
 package storage
 
 import (
-	"bufio"
-	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -18,7 +16,7 @@ func NewFileStorage(fileName string) *FileStorage {
 	}
 }
 
-func (f *FileStorage) Store(data [][]byte) error {
+func (f *FileStorage) Store(data []byte) error {
 	if f.fileName == "" {
 		return errors.New("file not specified")
 	}
@@ -29,22 +27,15 @@ func (f *FileStorage) Store(data [][]byte) error {
 	}
 	defer file.Close()
 
-	writer := bufio.NewWriter(file)
-
-	for i := range data {
-		if _, err := writer.Write(data[i]); err != nil {
-			return err
-		}
-
-		if err := writer.WriteByte('\n'); err != nil {
-			return err
-		}
+	_, err = file.Write(data)
+	if err != nil {
+		return err
 	}
 
-	return writer.Flush()
+	return nil
 }
 
-func (f *FileStorage) Restore() ([][]byte, error) {
+func (f *FileStorage) Restore() ([]byte, error) {
 	if f.fileName == "" {
 		return nil, errors.New("file not specified")
 	}
@@ -55,10 +46,5 @@ func (f *FileStorage) Restore() ([][]byte, error) {
 	}
 	defer file.Close()
 
-	bb, err := io.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes.Split(bb, []byte("\n")), nil
+	return io.ReadAll(file)
 }
