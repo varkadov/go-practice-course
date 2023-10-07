@@ -59,11 +59,8 @@ func NewMemStorage(storage storage, restore bool, storeInterval int) *MemStorage
 	if storeInterval > 0 {
 		go func(interval int) {
 			timer := time.NewTicker(time.Duration(interval) * time.Second)
-			for {
-				select {
-				case <-timer.C:
-					_ = ms.Flush()
-				}
+			for range timer.C {
+				_ = ms.Flush()
 			}
 		}(storeInterval)
 	}
