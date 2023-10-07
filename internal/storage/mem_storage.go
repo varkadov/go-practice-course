@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/varkadov/go-practice-course/internal/models"
 )
@@ -47,13 +48,29 @@ func NewMemStorage(storage storage, restore bool, storeInterval int) *MemStorage
 		counterMetrics, gaugeMetrics = restoreFromStorage(storage)
 	}
 
-	return &MemStorage{
+	ms := &MemStorage{
 		mutex:         sync.RWMutex{},
 		gauge:         gaugeMetrics,
 		counter:       counterMetrics,
 		storage:       storage,
 		storeInterval: storeInterval,
 	}
+
+	if storeInterval > 0 {
+		go func(interval int) {
+			timer := time.NewTicker(time.Duration(interval) * time.Second)
+			for {
+				select {
+				case <-timer.C:
+					_ = ms.Flush()
+				}
+			}
+
+			defer timer.Stop()
+		}(storeInterval)
+	}
+
+	return ms
 }
 
 func (s *MemStorage) Get(metricType, metricName string) (*models.Metrics, error) {
