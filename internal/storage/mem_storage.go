@@ -65,8 +65,6 @@ func NewMemStorage(storage storage, restore bool, storeInterval int) *MemStorage
 					_ = ms.Flush()
 				}
 			}
-
-			defer timer.Stop()
 		}(storeInterval)
 	}
 
@@ -127,6 +125,10 @@ func (s *MemStorage) Set(metricType, metricName, metricValue string) (*models.Me
 			return nil, err
 		}
 
+		if s.storeInterval == 0 {
+			_ = s.Flush()
+		}
+
 		s.gauge[metricName] = value
 
 		return &models.Metrics{
@@ -140,6 +142,10 @@ func (s *MemStorage) Set(metricType, metricName, metricValue string) (*models.Me
 		value, err := strconv.ParseInt(metricValue, 10, 64)
 		if err != nil {
 			return nil, err
+		}
+
+		if s.storeInterval == 0 {
+			_ = s.Flush()
 		}
 
 		s.counter[metricName] += value
