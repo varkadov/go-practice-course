@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io"
 	"math/rand"
 	"net/http"
 	"runtime"
@@ -38,8 +37,7 @@ func main() {
 		SetHeader("Content-Encoding", "gzip").
 		SetHeader("Accept-Encoding", "gzip").
 		SetHeader("Content-Type", "application/json").
-		OnBeforeRequest(requestMiddleware).
-		OnAfterResponse(responseMiddleware)
+		OnBeforeRequest(requestMiddleware)
 	conf := config.NewAgentConfig()
 
 	m := runtime.MemStats{}
@@ -273,27 +271,5 @@ func requestMiddleware(_ *resty.Client, request *resty.Request) error {
 	}
 
 	request.Body = buf.Bytes()
-	return nil
-}
-
-func responseMiddleware(_ *resty.Client, response *resty.Response) error {
-	if response.Header().Get("Content-Encoding") == "gzip" {
-		b := response.RawBody()
-		gz, err := gzip.NewReader(b)
-		if err != nil {
-			return err
-		}
-		defer func(gz *gzip.Reader) {
-			_ = gz.Close()
-		}(gz)
-
-		body, err := io.ReadAll(gz)
-		if err != nil {
-			return err
-		}
-
-		response.Request.Body = body
-	}
-
 	return nil
 }
