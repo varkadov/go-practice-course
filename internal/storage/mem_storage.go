@@ -46,6 +46,9 @@ func NewMemStorage(storage storage, restore bool, storeInterval int) *MemStorage
 
 	if restore {
 		counterMetrics, gaugeMetrics = restoreFromStorage(storage)
+	} else {
+		counterMetrics = make(CounterMetric)
+		gaugeMetrics = make(GaugeMetrics)
 	}
 
 	ms := &MemStorage{
