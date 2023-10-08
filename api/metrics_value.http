@@ -1,0 +1,32 @@
+# @name Get gauge metric
+POST http://localhost:8080/value
+Content-Type: application/json
+
+{
+  "id": "SomeMetric",
+  "type": "gauge"
+}
+
+###
+
+# @name Get counter metric
+POST http://localhost:8080/value
+Content-Type: application/json
+
+{
+  "id": "SomeMetric",
+  "type": "counter"
+}
+
+###
+
+# @name Get counter metric
+POST http://localhost:8080/value
+Content-Type: application/json
+
+{
+  "id": "SomeMetric",
+  "type": "non-existent"
+}
+
+###
