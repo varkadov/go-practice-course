@@ -12,13 +12,13 @@ type Storage interface {
 }
 
 type Handler struct {
-	storage    Storage
-	sqlStorage *storage.DBStorage
+	storage   Storage
+	dbStorage *storage.DBStorage
 }
 
-func NewHandler(storage Storage, sqlStorage *storage.DBStorage) *Handler {
+func NewHandler(storage Storage, dbStorage *storage.DBStorage) *Handler {
 	return &Handler{
-		storage:    storage,
-		sqlStorage: sqlStorage,
+		storage:   storage,
+		dbStorage: dbStorage,
 	}
 }

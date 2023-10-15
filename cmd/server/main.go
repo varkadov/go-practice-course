@@ -25,6 +25,8 @@ func main() {
 	r.Get("/", h.RootHandler)
 	r.Post("/value/", h.MetricsValueHandler)
 	r.Post("/update/", h.MetricsUpdateHandler)
+	// DB Health check
+	r.Get("/ping", h.GetPingHandler)
 	// Deprecated endpoints
 	r.Get("/value/{metricType}/{metricName}", h.GetMetricHandler)
 	r.Post("/update/{metricType}/{metricName}/{metricValue}", h.PostMetricHandler)

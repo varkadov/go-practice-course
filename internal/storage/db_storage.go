@@ -18,3 +18,7 @@ func NewDBStorage(serveName string) *DBStorage {
 		db: db,
 	}
 }
+
+func (s *DBStorage) Ping() error {
+	return s.db.Ping()
+}
