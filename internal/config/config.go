@@ -14,10 +14,11 @@ type AgentConfig struct {
 }
 
 type ServerConfig struct {
-	Addr            string
-	StoreInterval   int
-	FileStoragePath string
-	Restore         bool
+	Addr               string
+	StoreInterval      int
+	FileStoragePath    string
+	Restore            bool
+	DatabaseServerName string
 }
 
 func NewAgentConfig() *AgentConfig {
@@ -61,15 +62,17 @@ func NewAgentConfig() *AgentConfig {
 func NewServerConfig() *ServerConfig {
 	var (
 		config struct {
-			Addr            *string `env:"ADDRESS"`
-			StoreInterval   *int    `env:"STORE_INTERVAL"`
-			FileStoragePath *string `env:"FILE_STORAGE_PATH"`
-			Restore         *bool   `env:"RESTORE"`
+			Addr               *string `env:"ADDRESS"`
+			StoreInterval      *int    `env:"STORE_INTERVAL"`
+			FileStoragePath    *string `env:"FILE_STORAGE_PATH"`
+			Restore            *bool   `env:"RESTORE"`
+			DatabaseServerName *string `env:"DATABASE_DSN"`
 		}
-		addr            string
-		storeInterval   int
-		fileStoragePath string
-		restore         bool
+		addr               string
+		storeInterval      int
+		fileStoragePath    string
+		restore            bool
+		databaseServerName string
 	)
 
 	if err := env.Parse(&config); err != nil {
@@ -80,6 +83,7 @@ func NewServerConfig() *ServerConfig {
 	flag.IntVar(&storeInterval, "i", 300, "Store interval")
 	flag.StringVar(&fileStoragePath, "f", "/tmp/metrics-db.json", "File storage path")
 	flag.BoolVar(&restore, "r", true, "Restore previous stored file")
+	flag.StringVar(&databaseServerName, "d", "localhost", "Database server name")
 	flag.Parse()
 
 	if config.Addr == nil {
@@ -94,11 +98,15 @@ func NewServerConfig() *ServerConfig {
 	if config.Restore == nil {
 		config.Restore = &restore
 	}
+	if config.DatabaseServerName == nil {
+		config.DatabaseServerName = &databaseServerName
+	}
 
 	return &ServerConfig{
-		Addr:            *config.Addr,
-		StoreInterval:   *config.StoreInterval,
-		FileStoragePath: *config.FileStoragePath,
-		Restore:         *config.Restore,
+		Addr:               *config.Addr,
+		StoreInterval:      *config.StoreInterval,
+		FileStoragePath:    *config.FileStoragePath,
+		Restore:            *config.Restore,
+		DatabaseServerName: *config.DatabaseServerName,
 	}
 }
