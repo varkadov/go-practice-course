@@ -17,7 +17,8 @@ func main() {
 	c := config.NewServerConfig()
 	fs := storage.NewFileStorage(c.FileStoragePath)
 	ms := storage.NewMemStorage(fs, c.Restore, c.StoreInterval)
-	h := handlers.NewHandler(ms)
+	dbs := storage.NewDBStorage(c.DatabaseServerName)
+	h := handlers.NewHandler(ms, dbs)
 
 	r.Use(middlewares.WithLogging)
 	r.Use(middlewares.WithGzip)

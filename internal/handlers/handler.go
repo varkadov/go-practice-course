@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/varkadov/go-practice-course/internal/models"
+import (
+	"github.com/varkadov/go-practice-course/internal/models"
+	"github.com/varkadov/go-practice-course/internal/storage"
+)
 
 type Storage interface {
 	GetAll() []string
@@ -9,11 +12,13 @@ type Storage interface {
 }
 
 type Handler struct {
-	storage Storage
+	storage    Storage
+	sqlStorage *storage.DBStorage
 }
 
-func NewHandler(storage Storage) *Handler {
+func NewHandler(storage Storage, sqlStorage *storage.DBStorage) *Handler {
 	return &Handler{
-		storage: storage,
+		storage:    storage,
+		sqlStorage: sqlStorage,
 	}
 }
