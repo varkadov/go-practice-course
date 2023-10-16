@@ -83,7 +83,8 @@ func NewServerConfig() *ServerConfig {
 	flag.IntVar(&storeInterval, "i", 300, "Store interval")
 	flag.StringVar(&fileStoragePath, "f", "/tmp/metrics-db.json", "File storage path")
 	flag.BoolVar(&restore, "r", true, "Restore previous stored file")
-	flag.StringVar(&databaseServerName, "d", "localhost", "Database server name")
+	// TODO Put all this stuff in the secure place
+	flag.StringVar(&databaseServerName, "d", "postgres://vadim:gocoursepwd@localhost:5432/go-course", "Database server name")
 	flag.Parse()
 
 	if config.Addr == nil {
