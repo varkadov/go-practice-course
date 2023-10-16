@@ -14,12 +14,12 @@ import (
 )
 
 // TODO Move this mock into the common place
-type storage struct {
+type storageMock struct {
 	value float64
 	err   error
 }
 
-func (s *storage) Get(metricType, metricName string) (*models.Metrics, error) {
+func (s *storageMock) Get(metricType, metricName string) (*models.Metrics, error) {
 	return &models.Metrics{
 		ID:    metricName,
 		MType: metricType,
@@ -27,7 +27,7 @@ func (s *storage) Get(metricType, metricName string) (*models.Metrics, error) {
 	}, s.err
 }
 
-func (s *storage) Set(metricType, metricName, _ string) (*models.Metrics, error) {
+func (s *storageMock) Set(metricType, metricName, _ string) (*models.Metrics, error) {
 	return &models.Metrics{
 		ID:    metricName,
 		MType: metricType,
@@ -35,12 +35,12 @@ func (s *storage) Set(metricType, metricName, _ string) (*models.Metrics, error)
 	}, s.err
 }
 
-func (s *storage) GetAll() []string {
+func (s *storageMock) GetAll() []string {
 	return make([]string, 0)
 }
 
-func newStorage(value float64, err error) *storage {
-	return &storage{value: value, err: err}
+func newStorage(value float64, err error) *storageMock {
+	return &storageMock{value: value, err: err}
 }
 
 func TestHandler_GetMetricHandler(t *testing.T) {
@@ -53,7 +53,7 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 		name    string
 		url     string
 		body    string
-		storage *storage
+		storage *storageMock
 		want    want
 	}{
 		{

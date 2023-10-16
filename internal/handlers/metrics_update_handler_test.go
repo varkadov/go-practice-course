@@ -22,7 +22,7 @@ func TestHandler_PostMetricHandler(t *testing.T) {
 		name    string
 		url     string
 		body    string
-		storage *storage
+		storage *storageMock
 		want    want
 	}{
 		{
