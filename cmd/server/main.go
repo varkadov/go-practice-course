@@ -8,22 +8,38 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/varkadov/go-practice-course/internal/config"
 	"github.com/varkadov/go-practice-course/internal/handlers"
+	"github.com/varkadov/go-practice-course/internal/middlewares"
 	"github.com/varkadov/go-practice-course/internal/storage"
 )
 
 func main() {
-	s := storage.NewMemStorage()
 	r := chi.NewRouter()
-	c := config.NewConfig()
-	h := handlers.NewHandler(s)
+	c := config.NewServerConfig()
+	fs := storage.NewFileStorage(c.FileStoragePath)
+	ms := storage.NewMemStorage(fs, c.Restore, c.StoreInterval)
+	dbs := storage.NewDBStorage(c.DatabaseServerName)
+	h := handlers.NewHandler(ms, dbs)
 
+	r.Use(middlewares.WithLogging)
+	r.Use(middlewares.WithGzip)
 	r.Get("/", h.RootHandler)
+	r.Post("/value/", h.MetricsValueHandler)
+	r.Post("/update/", h.MetricsUpdateHandler)
+	// DB Health check
+	r.Get("/ping", h.GetPingHandler)
+	// Deprecated endpoints
 	r.Get("/value/{metricType}/{metricName}", h.GetMetricHandler)
 	r.Post("/update/{metricType}/{metricName}/{metricValue}", h.PostMetricHandler)
 
-	fmt.Printf("Server running on %s", c.Addr)
+	fmt.Printf("Server running on %s\n", c.Addr)
 
 	err := http.ListenAndServe(c.Addr, r)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	err = ms.Flush()
 	if err != nil {
 		log.Fatal(err)
 	}

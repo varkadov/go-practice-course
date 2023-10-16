@@ -5,32 +5,42 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
+	"github.com/varkadov/go-practice-course/internal/models"
 )
 
 // TODO Move this mock into the common place
-type storage struct {
-	value string
+type storageMock struct {
+	value float64
 	err   error
 }
 
-func (s *storage) Get(metricType, metricName string) (string, error) {
-	return s.value, s.err
+func (s *storageMock) Get(metricType, metricName string) (*models.Metrics, error) {
+	return &models.Metrics{
+		ID:    metricName,
+		MType: metricType,
+		Value: &s.value,
+	}, s.err
 }
 
-func (s *storage) Set(metricType, metricName, metricValue string) error {
-	return s.err
+func (s *storageMock) Set(metricType, metricName, _ string) (*models.Metrics, error) {
+	return &models.Metrics{
+		ID:    metricName,
+		MType: metricType,
+		Value: &s.value,
+	}, s.err
 }
 
-func (s *storage) GetAll() []string {
+func (s *storageMock) GetAll() []string {
 	return make([]string, 0)
 }
 
-func newStorage(value string, err error) *storage {
-	return &storage{value: value, err: err}
+func newStorage(value float64, err error) *storageMock {
+	return &storageMock{value: value, err: err}
 }
 
 func TestHandler_GetMetricHandler(t *testing.T) {
@@ -42,13 +52,15 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 	tests := []struct {
 		name    string
 		url     string
-		storage *storage
+		body    string
+		storage *storageMock
 		want    want
 	}{
 		{
 			name:    "Should return 404 status if metric doesn't exist",
-			url:     "/?metricType=counter&metricName=Alloc",
-			storage: newStorage("", errors.New("404")),
+			url:     "/",
+			body:    `{"id": "Alloc", "type": "counter"}`,
+			storage: newStorage(1, errors.New("404")),
 			want: want{
 				status: http.StatusNotFound,
 				body:   "404\n",
@@ -56,11 +68,12 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 		},
 		{
 			name:    "Should return 200 status if metric exists",
-			url:     "/?metricType=counter&metricName=Alloc",
-			storage: newStorage("value", nil),
+			url:     "/",
+			body:    `{"id": "Alloc", "type": "counter"}`,
+			storage: newStorage(1, nil),
 			want: want{
 				status: http.StatusOK,
-				body:   "value",
+				body:   `{"id": "Alloc", "type": "counter", "value": 1}`,
 			},
 		},
 	}
@@ -70,10 +83,10 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 			h := &Handler{storage: tt.storage}
 
 			router := chi.NewRouter()
-			router.Get("/", h.GetMetricHandler)
+			router.Post("/", h.MetricsValueHandler)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, tt.url, nil)
+			r := httptest.NewRequest(http.MethodPost, tt.url, strings.NewReader(tt.body))
 
 			handler := http.HandlerFunc(router.ServeHTTP)
 			handler.ServeHTTP(w, r)
@@ -85,7 +98,7 @@ func TestHandler_GetMetricHandler(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want.status, res.StatusCode)
-			assert.Equal(t, tt.want.body, string(body))
+			assert.JSONEq(t, tt.want.body, string(body))
 		})
 	}
 }

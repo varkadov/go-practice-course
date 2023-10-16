@@ -1,0 +1,35 @@
+# @name Gauge metric type update
+POST http://localhost:8080/update
+Content-Type: application/json
+
+{
+  "id": "SomeMetric",
+  "type": "gauge",
+  "value": 1
+}
+
+###
+
+# @name Counter metric type update
+POST http://localhost:8080/update
+Content-Type: application/json
+
+{
+  "id": "SomeMetric",
+  "type": "counter",
+  "delta": 1
+}
+
+###
+
+# @name Non-existent metric type
+POST http://localhost:8080/update
+Content-Type: application/json
+
+{
+  "id": "SomeMetric",
+  "type": "non-existent",
+  "delta": 1
+}
+
+###

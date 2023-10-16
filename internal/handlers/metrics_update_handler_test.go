@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -20,13 +21,15 @@ func TestHandler_PostMetricHandler(t *testing.T) {
 	tests := []struct {
 		name    string
 		url     string
-		storage *storage
+		body    string
+		storage *storageMock
 		want    want
 	}{
 		{
 			name:    "Should return 400 status",
-			url:     "/?metricType=gauge&metricName=alloc&metricValue=1",
-			storage: newStorage("", errors.New("400")),
+			url:     "/",
+			body:    `{"id": "alloc", "type": "gauge", "value": 1}`,
+			storage: newStorage(1, errors.New("400")),
 			want: want{
 				status: http.StatusBadRequest,
 				body:   "400\n",
@@ -34,11 +37,12 @@ func TestHandler_PostMetricHandler(t *testing.T) {
 		},
 		{
 			name:    "Should return 200 status",
-			url:     "/?metricType=gauge&metricName=alloc&metricValue=1",
-			storage: newStorage("", nil),
+			url:     "/",
+			body:    `{"id": "alloc", "type": "gauge", "value": 1}`,
+			storage: newStorage(1, nil),
 			want: want{
 				status: http.StatusOK,
-				body:   "",
+				body:   `{"id": "alloc", "type": "gauge", "value": 1}`,
 			},
 		},
 	}
@@ -50,10 +54,10 @@ func TestHandler_PostMetricHandler(t *testing.T) {
 			}
 
 			router := chi.NewRouter()
-			router.Post("/", h.PostMetricHandler)
+			router.Post("/", h.MetricsUpdateHandler)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, tt.url, nil)
+			r := httptest.NewRequest(http.MethodPost, tt.url, strings.NewReader(tt.body))
 
 			handler := http.HandlerFunc(router.ServeHTTP)
 			handler.ServeHTTP(w, r)
@@ -64,7 +68,7 @@ func TestHandler_PostMetricHandler(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want.status, res.StatusCode)
-			assert.Equal(t, tt.want.body, string(body))
+			assert.JSONEq(t, tt.want.body, string(body))
 		})
 	}
 }
